@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"time"
 )
@@ -71,6 +72,12 @@ func main() {
 
 	connstr := dbInfo.User + ":" + dbInfo.Password + "@tcp(" + dbInfo.HostPort +
 		")/" + dbInfo.Database + "?strict=true&charset=utf8&parseTime=True&loc=UTC"
+	if dbInfo.Timezone != "" {
+		// Quoting with %27 is needed
+		// https://github.com/go-sql-driver/mysql/issues/405
+		connstr = connstr + "&time_zone=%27" + url.QueryEscape(dbInfo.Timezone) + "%27"
+	}
+	log.Println(connstr)
 
 	db, err := sql.Open("mysql", connstr)
 	if err != nil {
@@ -78,12 +85,6 @@ func main() {
 		return
 	}
 	defer db.Close()
-
-	if dbInfo.Timezone != "" {
-		if _, err := db.Exec("SET @time_zone = ?", dbInfo.Timezone); err != nil {
-			log.Fatal(err)
-		}
-	}
 
 	if err = run(db); err != nil {
 		log.Println(err)
