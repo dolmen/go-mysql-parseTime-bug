@@ -70,7 +70,7 @@ func main() {
 	flag.Parse()
 
 	connstr := dbInfo.User + ":" + dbInfo.Password + "@tcp(" + dbInfo.HostPort +
-		")/" + dbInfo.Database + "?charset=utf8&parseTime=True&loc=UTC"
+		")/" + dbInfo.Database + "?strict=true&charset=utf8&parseTime=True&loc=UTC"
 
 	db, err := sql.Open("mysql", connstr)
 	if err != nil {
